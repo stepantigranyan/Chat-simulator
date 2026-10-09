@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+    --color-primary-light-brown: #faedcd;
+    --color-primary-dark-brown: #d4a373;
+    --color-primary-milk-white: #fefae0;
+    --color-primary-dirty-dark-green: #5C7057;
+    --color-primary-dirty-mid-green: #ccd5ae;
+    --color-primary-dirty-light-green: #e9edc9;
+}
+
+#chat-container::-webkit-scrollbar {
+    display: none;
+}
+
+textarea::-webkit-scrollbar {
+    display: none;
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/style.css" />
+    <title>Chat simulator</title>
+  </head>
+  <body>
+    <main class="h-screen flex justify-center items-center bg-primary-milk-white">
+      <div class="grid grid-rows-[500px_150px] gap-y-2 p-2 w-200 border-3 border-primary-dark-brown border-solid rounded-2xl bg-primary-dirty-light-green">
+        <div class="relative h-full bg-primary-milk-white border border-primary-dark-brown border-solid rounded-t-2xl">
+          <div class="absolute flex justify-center items-center top-0 left-0 w-full h-10 rounded-t-2xl backdrop-blur-md z-100">
+            <h2 id="inform-typing" class="text-primary-dark-brown text-xl"></h2>
+          </div>
+          <div id="chat-container" class="h-full overflow-y-scroll py-3 px-5 flex flex-col-reverse gap-y-5"></div>
+        </div>
+
+        <div class="grid grid-cols-2 content-center bg-primary-dirty-mid-green border border-primary-dark-brown border-solid rounded-b-2xl">
+          <div class="flex flex-col justify-center items-center gap-y-5">
+            <h3 class="text-xl text-primary-milk-white">User 2</h3>
+            <div class="flex justify-between items-center gap-x-4">
+              <label for="user-2">
+                <input id="user-2" type="text" class="text-primary-milk-white outline-none border border-primary-dark-brown rounded-xl px-5 py-2"/>
+              </label>
+              <button disabled id="user-2-submit" class="cursor-pointer text-primary-milk-white border border-primary-dark-brown rounded-xl px-5 py-2 hover:bg-primary-dark-brown disabled:bg-primary-dirty-light-green disabled:text-primary-dark-brown disabled:cursor-not-allowed">Send</button>
+            </div>
+          </div>
+          <div class="flex flex-col justify-center items-center gap-y-5">
+            <h3 class="text-xl text-primary-milk-white">User 1</h3>
+            <div class="flex justify-between items-center gap-x-4">
+              <label for="user-1">
+                <input id="user-1" type="text" class="text-primary-milk-white outline-none border border-primary-dark-brown rounded-xl px-5 py-2"/>
+              </label>
+              <button disabled id="user-1-submit" class="cursor-pointer text-primary-milk-white border border-primary-dark-brown rounded-xl px-5 py-2 hover:bg-primary-dark-brown disabled:bg-primary-dirty-light-green disabled:text-primary-dark-brown disabled:cursor-not-allowed">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
