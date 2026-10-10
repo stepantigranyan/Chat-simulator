@@ -1,5 +1,5 @@
 class Message {
-    constructor({ user, message}) {
+    constructor({ user, message }) {
         this.user = user;
         this.message = message;
         this.date = this.__initDate__();
@@ -14,9 +14,7 @@ class Message {
         this.message = message;
     }
 
-    delete() {
-
-    }
+    delete() {}
 
     getUser() {
         return this.user;

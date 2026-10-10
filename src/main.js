@@ -1,5 +1,8 @@
-import MessageBox from "./core/messageBox.js";
-import { debounce } from "./helpers/index.js";
+import MessageBox from './core/messageBox.js';
+import store from './core/store/index.js';
+
+import { debounce, sleep, generateID } from './helpers/index.js';
+import { USERS, EVENTS, DEBOUNCE_MS, SCROLL_HEIGHT } from './consts/index.js';
 
 const chatContainer = document.getElementById('chat-container');
 
@@ -10,24 +13,31 @@ const firstUserSubmitButton = document.getElementById('user-1-submit');
 const secondUserSubmitButton = document.getElementById('user-2-submit');
 
 const informTypingContainer = document.getElementById('inform-typing');
+const statusSpinner = document.getElementById('spinner');
 
 const firstUserMessage = {
-    message: undefined,
-    user: 'user-1'
-}
+    message: '',
+    user: USERS.FIRST,
+    id: undefined,
+};
 
 const secondUserMessage = {
-    message: undefined,
-    user: 'user-2'
-}
+    message: '',
+    user: USERS.SECOND,
+    id: undefined,
+};
 
-const messages = [];
+const pagination = {
+    isFetching: false,
+    from: 0,
+    to: 10,
+};
 
 const clearTypingContainer = () => {
     informTypingContainer.innerText = '';
-}
+};
 
-const debClearTypingContainer = debounce(clearTypingContainer, 2000);
+const debClearTypingContainer = debounce(clearTypingContainer, DEBOUNCE_MS);
 
 const handleInputFirstUser = (event) => {
     const { value } = event.target;
@@ -42,7 +52,7 @@ const handleInputFirstUser = (event) => {
     firstUserMessage.message = value;
     informTypingContainer.innerText = 'User 1 is typing...';
     debClearTypingContainer();
-}
+};
 
 const handleInputSecondUser = (event) => {
     const { value } = event.target;
@@ -57,77 +67,123 @@ const handleInputSecondUser = (event) => {
     secondUserMessage.message = value;
     informTypingContainer.innerText = 'User 2 is typing...';
     debClearTypingContainer();
-}
+};
 
 const sendFirstUserMessage = () => {
+    firstUserMessage.id = generateID();
+
     const message = new MessageBox(firstUserMessage);
-    messages.unshift(message);
+    store.add(firstUserMessage);
+
     chatContainer.prepend(message.getElement());
 
     firstUserMessage.message = '';
+    firstUserMessage.id = undefined;
     firstUserInput.value = '';
+    clearTypingContainer();
 
     firstUserSubmitButton.disabled = true;
-}
+};
 
 const sendSecondUserMessage = () => {
+    secondUserMessage.id = generateID();
+
     const message = new MessageBox(secondUserMessage);
-    messages.unshift(message.getElement());
+    store.add(message);
+
     chatContainer.prepend(message.getElement());
 
     secondUserMessage.message = '';
+    secondUserMessage.id = undefined;
     secondUserInput.value = '';
+    clearTypingContainer();
 
     secondUserSubmitButton.disabled = true;
-}
+};
 
 const sendFirstUserMessageWhenEnter = (event) => {
     if (event.key !== 'Enter') {
         return;
     }
 
-    if (firstUserInput.message === '') {
+    if (firstUserInput.value.trim() === '') {
         return;
     }
 
-    const message = new MessageBox(firstUserMessage);
-    messages.unshift(message);
-    chatContainer.prepend(message.getElement());
-
-    firstUserMessage.message = '';
-    firstUserInput.value = '';
-
-    firstUserSubmitButton.disabled = true;
-}
+    sendFirstUserMessage();
+};
 
 const sendSecondUserMessageWhenEnter = (event) => {
     if (event.key !== 'Enter') {
         return;
     }
 
-    if (secondUserInput.message === '') {
+    if (secondUserInput.value.trim() === '') {
         return;
     }
 
-    const message = new MessageBox(secondUserMessage);
-    messages.unshift(message);
-    chatContainer.prepend(message.getElement());
+    sendSecondUserMessage();
+};
 
-    secondUserMessage.message = '';
-    secondUserInput.value = '';
+const fetchOldMessages = async () => {
+    const maxScrollTop = chatContainer.scrollHeight - chatContainer.clientHeight;
+    const currentScrollFromBottom = Math.abs(chatContainer.scrollTop);
 
-    secondUserSubmitButton.disabled = true;
+    if (currentScrollFromBottom >= (maxScrollTop - SCROLL_HEIGHT) && !pagination.isFetching) {
+        pagination.isFetching = true;
+
+        pagination.from += 10;
+        pagination.to += 10;
+
+        const oldMessages = store.get(pagination.from, pagination.to);
+
+        if (oldMessages.length === 0) {
+            pagination.isFetching = false;
+            return;
+        }
+
+        statusSpinner.classList.remove('hidden');
+        statusSpinner.classList.add('block');
+
+        await sleep(2000);
+
+        oldMessages.forEach((message) => {
+            chatContainer.append(message.getElement());
+        });
+
+        statusSpinner.classList.remove('block');
+        statusSpinner.classList.add('hidden');
+
+        pagination.isFetching = false;
+    }
 }
-
-firstUserInput.addEventListener('input', handleInputFirstUser);
-secondUserInput.addEventListener('input', handleInputSecondUser);
-
-firstUserInput.addEventListener('keydown', sendFirstUserMessageWhenEnter);
-secondUserInput.addEventListener('keydown', sendSecondUserMessageWhenEnter);
-
-firstUserSubmitButton.addEventListener('click', sendFirstUserMessage);
-secondUserSubmitButton.addEventListener('click', sendSecondUserMessage);
 
 const start = () => {
+    const oldMessages = store.get(pagination.from, pagination.to);
 
-}
+    oldMessages.forEach((message) => {
+        chatContainer.append(message.getElement());
+    });
+
+    firstUserInput.addEventListener(EVENTS.INPUT, handleInputFirstUser);
+    secondUserInput.addEventListener(EVENTS.INPUT, handleInputSecondUser);
+
+    firstUserInput.addEventListener(
+        EVENTS.KEYDOWN,
+        sendFirstUserMessageWhenEnter,
+    );
+    secondUserInput.addEventListener(
+        EVENTS.KEYDOWN,
+        sendSecondUserMessageWhenEnter,
+    );
+
+    firstUserSubmitButton.addEventListener(EVENTS.CLICK, sendFirstUserMessage);
+    secondUserSubmitButton.addEventListener(
+        EVENTS.CLICK,
+        sendSecondUserMessage,
+    );
+
+    chatContainer.addEventListener(EVENTS.SCROLL, fetchOldMessages);
+};
+
+start();

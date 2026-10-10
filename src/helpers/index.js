@@ -5,6 +5,15 @@ export const debounce = (func, ms) => {
         clearTimeout(timer);
         timer = setTimeout(() => {
             func(...args);
-        }, ms)
-    }
+        }, ms);
+    };
+};
+
+export const sleep = (ms) => {
+    return new Promise((resolve) => setTimeout(() => resolve(), ms));
 }
+
+export const generateID = () => {
+    const date = new Date();
+    return date.getTime();
+};
