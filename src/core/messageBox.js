@@ -40,6 +40,7 @@ class MessageBox {
             'block',
             'text-primary-milk-white',
             'break-all',
+            'whitespace-pre',
         );
 
         const messageArea = document.createElement('textarea');
